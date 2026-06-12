@@ -62,7 +62,7 @@ int main() {
     Color active = {71, 224, 81, 255};
 
     // footer
-    const std::string game_info = "\n\n\nn:new game\nesc: quit";
+    const std::string game_info = "\n\n\nn: new game\nesc: quit";
 
     const float roundness = 0.3f;
     const int segments = 4;
@@ -86,59 +86,54 @@ int main() {
         } else if (IsKeyPressed(KEY_RIGHT)) {
             focus_move_right();
         }
-        // std::cout << focus_index << std::endl;
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        const int padding = 5;
-        // Drawing
-        for (int i = 0; i < fiv; i++) {
-            for (int j = 0; j < fiv; j++) {
-
-                struct Rectangle cell = {(float)j * cell_size + padding,
-                                         (float)i * cell_size + padding,
-                                         cell_size - padding,
-                                         cell_size - padding};
-
-                if (board[i][j]) {
-                    DrawRectangleRounded(cell, roundness, segments, active);
-                } else {
-                    DrawRectangleRounded(cell, roundness, segments, inactive);
-                }
-            }
-        }
-
-        struct Rectangle focus_cell = {(float)focus_y * cell_size + padding,
-                                       (float)focus_x * cell_size + padding,
-                                       cell_size - padding,
-                                       cell_size - padding};
-        // draw focus
-        DrawRectangleRoundedLines(focus_cell, roundness, segments, ORANGE);
-
-        // draw seperator
-        DrawLine(window_height + padding, 0, window_height + padding,
-                 window_height + padding, ORANGE);
-
-        // move_count on_count
-        std::string onandmove = "move count: ";
-        onandmove += std::to_string(move_count);
-        onandmove += "\non count: ";
-        onandmove += std::to_string(on_count);
-        onandmove += game_info;
-        DrawText(onandmove.c_str(), window_height + 2 * padding, 2 * padding,
-                 10, WHITE);
-
         // check winning
         if (iswin()) {
+            DrawText(game_info.c_str(), window_height / 3, 0, 20, WHITE);
+        } else {
+            const int padding = 5;
+            // Drawing
+            for (int i = 0; i < fiv; i++) {
+                for (int j = 0; j < fiv; j++) {
 
-            while (!IsKeyPressed(KEY_N) or !IsKeyPressed(KEY_Q)) {
-                ClearBackground(BLACK);
-                DrawText(game_info.c_str(), window_height + 2 * padding,
-                         2 * padding, 20, WHITE);
+                    struct Rectangle cell = {(float)j * cell_size + padding,
+                                             (float)i * cell_size + padding,
+                                             cell_size - padding,
+                                             cell_size - padding};
+
+                    if (board[i][j]) {
+                        DrawRectangleRounded(cell, roundness, segments, active);
+                    } else {
+                        DrawRectangleRounded(cell, roundness, segments,
+                                             inactive);
+                    }
+                }
             }
-        }
 
+            struct Rectangle focus_cell = {(float)focus_y * cell_size + padding,
+                                           (float)focus_x * cell_size + padding,
+                                           cell_size - padding,
+                                           cell_size - padding};
+            // draw focus
+            DrawRectangleRoundedLines(focus_cell, roundness, segments, ORANGE);
+
+            // draw seperator
+            DrawLine(window_height + padding, 0, window_height + padding,
+                     window_height + padding, ORANGE);
+
+            // move_count on_count
+            std::string onandmove = "move count: ";
+            onandmove += std::to_string(move_count);
+            onandmove += "\non count: ";
+            onandmove += std::to_string(on_count);
+            std::string move_info = "\n\n\nret/spc :toggle\narrows :move\n";
+            onandmove += move_info + game_info;
+            DrawText(onandmove.c_str(), window_height + 2 * padding,
+                     2 * padding, 10, WHITE);
+        }
         EndDrawing();
     }
 
