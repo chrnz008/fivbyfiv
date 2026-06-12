@@ -6,13 +6,16 @@
 
 #define fiv 5
 
+int move_count = 0;
+int on_count = 0;
+
 int main() {
 
     bool board[fiv][fiv]{};
-    // board[0][0] = true;
 
     auto new_game = [&]() {
         std::fill(&board[0][0], &board[0][0] + fiv * fiv, 0);
+        move_count = 0;
     };
 
     auto toggle_cross = [&](int x, int y) {
@@ -31,6 +34,22 @@ int main() {
         }
     };
 
+    // winning condition
+    auto iswin = [&]() -> bool {
+        bool didi = true;
+        on_count = 0;
+        for (int i = 0; i < fiv; i++) {
+            for (int j = 0; j < fiv; j++) {
+                if (!board[i][j]) {
+                    didi = false; // for on_count
+                } else {
+                    on_count++; // side effect
+                }
+            }
+        }
+        return didi;
+    };
+
     const int window_width = 400;
     const int window_height = 300;
     InitWindow(window_width, window_height, "5x5");
@@ -42,6 +61,9 @@ int main() {
     Color inactive = {0, 101, 6, 255};
     Color active = {71, 224, 81, 255};
 
+    // footer
+    const std::string game_info = "\n\n\nn:new game\nesc: quit";
+
     const float roundness = 0.3f;
     const int segments = 4;
     while (!WindowShouldClose()) {
@@ -51,8 +73,10 @@ int main() {
 
         if (IsKeyPressed(KEY_N)) {
             new_game();
-        } else if (IsKeyPressed(KEY_ENTER)) { // Toggle
+        } else if (IsKeyPressed(KEY_ENTER) or
+                   IsKeyPressed(KEY_SPACE)) { // Toggle
             toggle_cross(focus_x, focus_y);
+            move_count++;
         } else if (IsKeyPressed(KEY_LEFT)) {
             focus_move_left();
         } else if (IsKeyPressed(KEY_DOWN)) {
@@ -62,7 +86,7 @@ int main() {
         } else if (IsKeyPressed(KEY_RIGHT)) {
             focus_move_right();
         }
-        std::cout << focus_index << std::endl;
+        // std::cout << focus_index << std::endl;
 
         BeginDrawing();
         ClearBackground(BLACK);
@@ -91,6 +115,29 @@ int main() {
                                        cell_size - padding};
         // draw focus
         DrawRectangleRoundedLines(focus_cell, roundness, segments, ORANGE);
+
+        // draw seperator
+        DrawLine(window_height + padding, 0, window_height + padding,
+                 window_height + padding, ORANGE);
+
+        // move_count on_count
+        std::string onandmove = "move count: ";
+        onandmove += std::to_string(move_count);
+        onandmove += "\non count: ";
+        onandmove += std::to_string(on_count);
+        onandmove += game_info;
+        DrawText(onandmove.c_str(), window_height + 2 * padding, 2 * padding,
+                 10, WHITE);
+
+        // check winning
+        if (iswin()) {
+
+            while (!IsKeyPressed(KEY_N) or !IsKeyPressed(KEY_Q)) {
+                ClearBackground(BLACK);
+                DrawText(game_info.c_str(), window_height + 2 * padding,
+                         2 * padding, 20, WHITE);
+            }
+        }
 
         EndDrawing();
     }
